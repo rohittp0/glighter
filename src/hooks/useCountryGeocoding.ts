@@ -12,8 +12,11 @@ interface CountryFeature {
     ADMIN: string;
   };
   geometry: {
-    type: 'Polygon' | 'MultiPolygon';
-    coordinates: number[][][] | number[][][][];
+    type: 'Polygon';
+    coordinates: number[][][];
+  } | {
+    type: 'MultiPolygon';
+    coordinates: number[][][][];
   };
 }
 
@@ -56,7 +59,7 @@ function findCountryForPoint(
 
   for (const feature of countriesData.features) {
     try {
-      if (booleanPointInPolygon(pt, feature.geometry)) {
+      if (booleanPointInPolygon(pt, feature)) {
         const code = feature.properties.ISO_A2;
         const name = feature.properties.NAME || feature.properties.ADMIN;
 
@@ -68,7 +71,6 @@ function findCountryForPoint(
     } catch (error) {
       // Skip features with invalid geometries
       console.warn('Error checking country polygon:', error);
-      continue;
     }
   }
 
