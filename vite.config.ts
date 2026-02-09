@@ -20,6 +20,8 @@ export default defineConfig({
         theme_color: '#FF6B35',
         background_color: '#FFFFFF',
         display: 'standalone',
+        scope: process.env.GITHUB_ACTIONS ? '/glighter/' : '/',
+        start_url: process.env.GITHUB_ACTIONS ? '/glighter/' : '/',
         icons: [
           {
             src: '/icons/icon-192x192.png',
