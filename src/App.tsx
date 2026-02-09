@@ -1,35 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
+import { LocationSelectionScreen } from './screens/LocationSelectionScreen';
+import { AnimationPreviewScreen } from './screens/AnimationPreviewScreen';
+import { InstallPrompt } from './components/pwa/InstallPrompt';
+
+type Screen = 'location-selection' | 'animation-preview';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentScreen, setCurrentScreen] = useState<Screen>('location-selection');
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#1A1A1A',
+            color: '#fff',
+            borderRadius: '12px',
+          },
+          success: {
+            iconTheme: {
+              primary: '#FF6B35',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
+
+      <InstallPrompt />
+
+      {currentScreen === 'location-selection' && (
+        <LocationSelectionScreen onNext={() => setCurrentScreen('animation-preview')} />
+      )}
+      {currentScreen === 'animation-preview' && (
+        <AnimationPreviewScreen onBack={() => setCurrentScreen('location-selection')} />
+      )}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
