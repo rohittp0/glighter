@@ -62,15 +62,15 @@ export function AnimationPreviewScreen({ onBack }: AnimationPreviewScreenProps) 
   return (
     <div className="w-screen h-screen flex flex-col">
       {/* Header */}
-      <div className="p-4 bg-white shadow-sm z-10 flex items-center gap-3">
+      <div className="px-4 py-2 bg-white shadow-sm z-10 flex items-center gap-2">
         <button
           onClick={onBack}
-          className="text-2xl p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="text-xl p-1 hover:bg-gray-100 rounded-lg transition-colors"
           aria-label="Go back"
         >
           ←
         </button>
-        <h1 className="m-0 text-xl font-bold text-gray-900">Preview Animation</h1>
+        <h1 className="m-0 text-lg font-bold text-gray-900">Preview Animation</h1>
       </div>
 
       {/* Map */}

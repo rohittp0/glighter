@@ -33,9 +33,9 @@ export function LocationSelectionScreen({ onNext }: LocationSelectionScreenProps
   return (
     <div className="w-screen h-screen flex flex-col">
       {/* Header */}
-      <div className="p-4 bg-white shadow-sm z-10">
-        <h1 className="m-0 text-xl font-bold text-gray-900">Add Locations</h1>
-        <p className="mt-1 text-sm text-gray-600">
+      <div className="px-4 py-2 bg-white shadow-sm z-10">
+        <h1 className="m-0 text-lg font-bold text-gray-900">Add Locations</h1>
+        <p className="mt-0.5 text-xs text-gray-600">
           Tap the map to add countries
         </p>
       </div>
@@ -55,9 +55,14 @@ export function LocationSelectionScreen({ onNext }: LocationSelectionScreenProps
       </div>
 
       {/* Bottom panel */}
-      <div className="bg-surface max-h-[40vh] overflow-auto rounded-t-2xl shadow-lg">
-        <MarkerList />
-        <div className="p-4">
+      <div className="bg-surface max-h-[40vh] rounded-t-2xl shadow-lg flex flex-col">
+        {/* Scrollable marker list */}
+        <div className="flex-1 overflow-auto">
+          <MarkerList />
+        </div>
+
+        {/* Fixed button at bottom */}
+        <div className="p-4 border-t border-gray-200 bg-surface">
           <Button
             onClick={onNext}
             disabled={markers.length < 2}
