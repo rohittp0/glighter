@@ -1,5 +1,5 @@
 import maplibregl, { Map as MapLibreMap } from 'maplibre-gl';
-import type { VideoExportOptions } from '../types/video.types';
+import type { VideoExportOptions, VideoExportStage } from '../types/video.types';
 import type { AnimationConfig } from '../types/animation.types';
 import { getSupportedVideoCodec, getFileExtension } from './canvasRecorder';
 import { getMapStyleUrl } from './maptiler';
@@ -42,7 +42,7 @@ async function playAnimationOnMap(map: MapLibreMap, config: AnimationConfig): Pr
 
     // Pause to show location (if it has a country code)
     if (waypoint.countryCode) {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, config.pauseAfterWaypointMs));
     }
   }
 
@@ -57,6 +57,7 @@ export async function exportMapVideo(
   animationConfig: AnimationConfig,
   durationMs: number,
   onProgress: (percent: number) => void,
+  onStageChange: (stage: VideoExportStage) => void,
   options: Partial<VideoExportOptions> = {}
 ): Promise<{ blob: Blob; extension: string }> {
   const fps = options.fps || 30;
@@ -76,6 +77,9 @@ export async function exportMapVideo(
   let mediaRecorder: MediaRecorder | null = null;
 
   try {
+    onStageChange('preparing-map');
+    onProgress(2);
+
     // Create recording map at square resolution
     recordingMap = new maplibregl.Map({
       container,
@@ -130,6 +134,8 @@ export async function exportMapVideo(
     };
 
     // Start recording
+    onStageChange('recording');
+    onProgress(5);
     mediaRecorder.start();
 
     // Progress tracking
@@ -145,6 +151,8 @@ export async function exportMapVideo(
 
     // Stop recording
     clearInterval(progressInterval);
+    onStageChange('finalizing');
+    onProgress(95);
     mediaRecorder.stop();
 
     // Wait for final data
@@ -152,9 +160,18 @@ export async function exportMapVideo(
       mediaRecorder!.onstop = () => resolve();
     });
 
+    const recorderMimeType = mediaRecorder.mimeType || codec;
+    const normalizedMimeType = recorderMimeType.split(';')[0];
+
     // Create video blob
-    const blob = new Blob(chunks, { type: codec.split(';')[0] });
-    const extension = getFileExtension(codec);
+    const blob = new Blob(chunks, { type: normalizedMimeType });
+    const extension = getFileExtension(recorderMimeType);
+
+    if (blob.size === 0) {
+      throw new Error('Video export produced an empty file.');
+    }
+
+    onProgress(100);
 
     return { blob, extension };
   } finally {

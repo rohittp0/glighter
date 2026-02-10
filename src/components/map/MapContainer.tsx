@@ -2,15 +2,32 @@ import { useEffect, useRef } from 'react';
 import maplibregl, { Map as MapLibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { getMapStyleUrl } from '../../services/maptiler';
+import { cn } from '../../lib/utils';
 
 interface MapContainerProps {
   onMapLoad?: (map: MapLibreMap) => void;
   onClick?: (lng: number, lat: number) => void;
+  onInteraction?: () => void;
+  className?: string;
 }
 
-export function MapContainer({ onMapLoad, onClick }: MapContainerProps) {
+export function MapContainer({ onMapLoad, onClick, onInteraction, className }: MapContainerProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<MapLibreMap | null>(null);
+  const onMapLoadRef = useRef(onMapLoad);
+  const onClickRef = useRef(onClick);
+  const onInteractionRef = useRef(onInteraction);
+
+  useEffect(() => {
+    onMapLoadRef.current = onMapLoad;
+  }, [onMapLoad]);
+
+  useEffect(() => {
+    onClickRef.current = onClick;
+  }, [onClick]);
+
+  useEffect(() => {
+    onInteractionRef.current = onInteraction;
+  }, [onInteraction]);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -24,29 +41,46 @@ export function MapContainer({ onMapLoad, onClick }: MapContainerProps) {
     } as maplibregl.MapOptions);
 
     map.on('load', () => {
-      onMapLoad?.(map);
+      onMapLoadRef.current?.(map);
     });
 
-    if (onClick) {
-      map.on('click', (e) => {
-        onClick(e.lngLat.lng, e.lngLat.lat);
+    const notifyInteraction = () => {
+      onInteractionRef.current?.();
+    };
+
+    const interactionEvents: Array<'dragstart' | 'touchstart' | 'mousedown' | 'zoomstart' | 'rotatestart' | 'pitchstart'> = [
+      'dragstart',
+      'touchstart',
+      'mousedown',
+      'zoomstart',
+      'rotatestart',
+      'pitchstart',
+    ];
+
+    interactionEvents.forEach((eventName) => {
+      map.on(eventName, notifyInteraction);
+    });
+
+    map.on('click', (e) => {
+      onClickRef.current?.(e.lngLat.lng, e.lngLat.lat);
+      onInteractionRef.current?.();
+    });
+
+    return () => {
+      interactionEvents.forEach((eventName) => {
+        map.off(eventName, notifyInteraction);
       });
-    }
-
-    mapRef.current = map;
-
-    return () => map.remove();
+      map.remove();
+    };
   }, []);
 
   return (
     <div
       ref={mapContainer}
+      className={cn('absolute inset-0', className)}
       style={{
         width: '100%',
         height: '100%',
-        position: 'absolute',
-        top: 0,
-        left: 0,
       }}
     />
   );

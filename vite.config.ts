@@ -17,8 +17,8 @@ export default defineConfig({
         name: 'Glighter - Map Animation Creator',
         short_name: 'Glighter',
         description: 'Create beautiful map animations and export them as videos',
-        theme_color: '#FF6B35',
-        background_color: '#FFFFFF',
+        theme_color: '#0f6ccf',
+        background_color: '#f5f9ff',
         display: 'standalone',
         scope: process.env.GITHUB_ACTIONS ? '/glighter/' : '/',
         start_url: process.env.GITHUB_ACTIONS ? '/glighter/' : '/',
@@ -42,6 +42,7 @@ export default defineConfig({
         ]
       },
       workbox: {
+        mode: 'development',
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
         runtimeCaching: [
           {

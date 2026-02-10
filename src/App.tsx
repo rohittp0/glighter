@@ -1,31 +1,42 @@
 import { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { LocationSelectionScreen } from './screens/LocationSelectionScreen';
+import { TemplateSelectionScreen } from './screens/TemplateSelectionScreen';
 import { AnimationPreviewScreen } from './screens/AnimationPreviewScreen';
 import { VideoPreviewScreen } from './screens/VideoPreviewScreen';
 import { InstallPrompt } from './components/pwa/InstallPrompt';
+import type { VideoExportResult } from './types/video.types';
 
-type Screen = 'location-selection' | 'animation-preview' | 'video-preview';
+type AppStep = 'locations' | 'templates' | 'preview' | 'video-preview';
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('location-selection');
+  const [currentStep, setCurrentStep] = useState<AppStep>('locations');
+  const [videoData, setVideoData] = useState<VideoExportResult | null>(null);
 
-  // State to hold video data for preview
-  const [videoData, setVideoData] = useState<{
-    blob: Blob;
-    extension: string;
-  } | null>(null);
-
-  // Navigation handler for export completion
-  const handleExportComplete = (blob: Blob, extension: string) => {
-    setVideoData({ blob, extension });
-    setCurrentScreen('video-preview');
+  const handleExportComplete = (result: VideoExportResult) => {
+    setVideoData(result);
+    setCurrentStep('video-preview');
   };
 
-  const handleVideoPreviewBack = () => {
-    // Clean up video data
+  const handleBackFromResult = () => {
     setVideoData(null);
-    setCurrentScreen('animation-preview');
+    setCurrentStep('preview');
+  };
+
+  const handleBackToLocations = () => {
+    setCurrentStep('locations');
+  };
+
+  const handleBackToTemplates = () => {
+    setCurrentStep('templates');
+  };
+
+  const handleGoToTemplates = () => {
+    setCurrentStep('templates');
+  };
+
+  const handleGoToPreview = () => {
+    setCurrentStep('preview');
   };
 
   return (
@@ -35,13 +46,13 @@ function App() {
         toastOptions={{
           duration: 3000,
           style: {
-            background: '#1A1A1A',
+            background: '#08294b',
             color: '#fff',
-            borderRadius: '12px',
+            borderRadius: '14px',
           },
           success: {
             iconTheme: {
-              primary: '#FF6B35',
+              primary: '#0ea5e9',
               secondary: '#fff',
             },
           },
@@ -50,20 +61,25 @@ function App() {
 
       <InstallPrompt />
 
-      {currentScreen === 'location-selection' && (
-        <LocationSelectionScreen onNext={() => setCurrentScreen('animation-preview')} />
+      {currentStep === 'locations' && (
+        <LocationSelectionScreen onNext={handleGoToTemplates} />
       )}
-      {currentScreen === 'animation-preview' && (
+      {currentStep === 'templates' && (
+        <TemplateSelectionScreen
+          onBack={handleBackToLocations}
+          onNext={handleGoToPreview}
+        />
+      )}
+      {currentStep === 'preview' && (
         <AnimationPreviewScreen
-          onBack={() => setCurrentScreen('location-selection')}
+          onBack={handleBackToTemplates}
           onExportComplete={handleExportComplete}
         />
       )}
-      {currentScreen === 'video-preview' && videoData && (
+      {currentStep === 'video-preview' && videoData && (
         <VideoPreviewScreen
-          videoBlob={videoData.blob}
-          videoExtension={videoData.extension}
-          onBack={handleVideoPreviewBack}
+          video={videoData}
+          onBack={handleBackFromResult}
         />
       )}
     </>

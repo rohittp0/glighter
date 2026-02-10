@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import { useAnimationStore } from '../../store/useAnimationStore';
 import countriesDataUrl from '../../assets/data/countries-110m.geojson?url';
@@ -9,41 +9,48 @@ interface CountryLayerProps {
 
 export function CountryLayer({ map }: CountryLayerProps) {
   const currentCountryCode = useAnimationStore(state => state.currentCountryCode);
-  const [isLayerAdded, setIsLayerAdded] = useState(false);
+  const config = useAnimationStore(state => state.config);
+  const isLayerAddedRef = useRef(false);
 
   // Add source and layer
   useEffect(() => {
-    if (!map || isLayerAdded) return;
+    if (!map || isLayerAddedRef.current) return;
 
-    map.addSource('countries', {
-      type: 'geojson',
-      data: countriesDataUrl,
-    });
+    if (!map.getSource('countries')) {
+      map.addSource('countries', {
+        type: 'geojson',
+        data: countriesDataUrl,
+      });
+    }
 
-    map.addLayer({
-      id: 'country-highlight',
-      type: 'fill',
-      source: 'countries',
-      paint: {
-        'fill-color': '#FF6B35',
-        'fill-opacity': 0,
-      },
-    });
+    if (!map.getLayer('country-highlight')) {
+      map.addLayer({
+        id: 'country-highlight',
+        type: 'fill',
+        source: 'countries',
+        paint: {
+          'fill-color': config?.highlightColor ?? '#0ea5e9',
+          'fill-opacity': 0,
+        },
+      });
+    }
 
-    setIsLayerAdded(true);
-  }, [map, isLayerAdded]);
+    isLayerAddedRef.current = true;
+  }, [map, config?.highlightColor]);
 
-  // Update highlight
+  // Update highlight color and opacity
   useEffect(() => {
-    if (!map || !isLayerAdded) return;
+    if (!map || !isLayerAddedRef.current || !map.getLayer('country-highlight')) return;
+
+    map.setPaintProperty('country-highlight', 'fill-color', config?.highlightColor ?? '#0ea5e9');
 
     map.setPaintProperty('country-highlight', 'fill-opacity', [
       'case',
       ['==', ['get', 'ISO_A2'], currentCountryCode || ''],
-      0.4,
+      config?.highlightOpacity ?? 0.4,
       0
     ]);
-  }, [map, currentCountryCode, isLayerAdded]);
+  }, [map, currentCountryCode, config?.highlightColor, config?.highlightOpacity]);
 
   return null;
 }

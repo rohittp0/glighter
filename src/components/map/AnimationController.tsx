@@ -47,7 +47,7 @@ export function AnimationController({ map }: AnimationControllerProps) {
 
         // Pause to show country
         if (waypoint.countryCode) {
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          await new Promise(resolve => setTimeout(resolve, config.pauseAfterWaypointMs));
         }
       }
 
@@ -61,7 +61,7 @@ export function AnimationController({ map }: AnimationControllerProps) {
     return () => {
       cancelled = true;
     };
-  }, [map, isPlaying, config]);
+  }, [map, isPlaying, config, setCurrentCountry, setPlaying]);
 
   return null;
 }

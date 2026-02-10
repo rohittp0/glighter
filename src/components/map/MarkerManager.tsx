@@ -32,18 +32,19 @@ export function MarkerManager({ map }: MarkerManagerProps) {
         el.className = 'custom-marker';
         el.textContent = marker.order.toString();
         el.style.cssText = `
-          width: 40px;
-          height: 40px;
+          width: 42px;
+          height: 42px;
           border-radius: 50%;
-          background: white;
-          border: 3px solid #FF6B35;
+          background: linear-gradient(145deg, #1d4ed8, #06b6d4);
+          border: 2px solid rgba(255,255,255,0.9);
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: bold;
-          color: #FF6B35;
+          font-size: 15px;
+          color: white;
           cursor: grab;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          box-shadow: 0 8px 18px rgba(9,50,114,0.42);
         `;
 
         instance = new maplibregl.Marker({
@@ -60,6 +61,9 @@ export function MarkerManager({ map }: MarkerManagerProps) {
 
         markerInstancesRef.current.set(marker.id, instance);
       } else {
+        const markerElement = instance.getElement();
+        markerElement.textContent = marker.order.toString();
+
         // Update position if changed
         const current = instance.getLngLat();
         if (current.lng !== marker.position[0] || current.lat !== marker.position[1]) {
@@ -67,7 +71,7 @@ export function MarkerManager({ map }: MarkerManagerProps) {
         }
       }
     });
-  }, [map, markers]);
+  }, [map, markers, updateMarkerPosition]);
 
   return null;
 }

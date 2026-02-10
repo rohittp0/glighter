@@ -5,6 +5,18 @@ interface GeocodingResult {
   countryName: string;
 }
 
+interface MapTilerFeature {
+  place_type?: string[];
+  properties?: {
+    short_code?: string;
+  };
+  text?: string;
+}
+
+interface MapTilerResponse {
+  features?: MapTilerFeature[];
+}
+
 export async function reverseGeocode(
   lng: number,
   lat: number
@@ -14,11 +26,11 @@ export async function reverseGeocode(
 
   try {
     const response = await fetch(url);
-    const data = await response.json();
+    const data = await response.json() as MapTilerResponse;
 
     // Find country feature
     const countryFeature = data.features?.find(
-      (f: any) => f.place_type?.includes('country')
+      (feature) => feature.place_type?.includes('country')
     );
 
     if (!countryFeature) return null;

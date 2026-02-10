@@ -1,5 +1,6 @@
 import type { Marker } from '../types/marker.types';
 import type { AnimationWaypoint, AnimationConfig } from '../types/animation.types';
+import { getTemplateById } from '../constants/templates';
 
 export function calculateOppositePosition(position: [number, number]): [number, number] {
   const [lng, lat] = position;
@@ -39,12 +40,16 @@ export function calculateBounds(positions: [number, number][]): {
   return { center, zoom };
 }
 
-export function generateAnimationConfig(markers: Marker[]): AnimationConfig {
+export function generateAnimationConfig(markers: Marker[], templateId: string): AnimationConfig {
+  const template = getTemplateById(templateId);
+
   if (markers.length === 0) {
     return {
+      templateId: template.id,
       waypoints: [],
-      highlightColor: '#FF6B35',
-      highlightOpacity: 0.4,
+      highlightColor: template.highlightColor,
+      highlightOpacity: template.highlightOpacity,
+      pauseAfterWaypointMs: template.pauseAfterWaypointMs,
     };
   }
 
@@ -64,10 +69,10 @@ export function generateAnimationConfig(markers: Marker[]): AnimationConfig {
   markers.forEach((marker) => {
     waypoints.push({
       center: marker.position,
-      zoom: 5,
+      zoom: template.waypointZoom,
       bearing: 0,
-      pitch: 30,
-      duration: 2000,
+      pitch: template.waypointPitch,
+      duration: template.waypointDuration,
       countryCode: marker.countryCode,
     });
   });
@@ -79,12 +84,14 @@ export function generateAnimationConfig(markers: Marker[]): AnimationConfig {
     zoom: bounds.zoom,
     bearing: 0,
     pitch: 0,
-    duration: 3000,
+    duration: template.finalDuration,
   });
 
   return {
+    templateId: template.id,
     waypoints,
-    highlightColor: '#FF6B35',
-    highlightOpacity: 0.4,
+    highlightColor: template.highlightColor,
+    highlightOpacity: template.highlightOpacity,
+    pauseAfterWaypointMs: template.pauseAfterWaypointMs,
   };
 }

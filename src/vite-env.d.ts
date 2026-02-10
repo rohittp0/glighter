@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 declare module '*.geojson' {
-  const value: any;
+  const value: unknown;
   export default value;
 }
 
