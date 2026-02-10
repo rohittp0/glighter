@@ -3,7 +3,7 @@ import type { VideoExportOptions, VideoExportStage } from '../types/video.types'
 import type { AnimationConfig } from '../types/animation.types';
 import { getSupportedVideoCodec, getFileExtension } from './canvasRecorder';
 import { getMapStyleUrl } from './maptiler';
-import countriesDataUrl from '../assets/data/countries-110m.geojson?url';
+import countriesDataUrl from '../assets/data/countries-50m.geojson?url';
 
 /**
  * Plays animation on a map instance with country highlighting

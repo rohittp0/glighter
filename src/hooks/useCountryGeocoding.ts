@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { point } from '@turf/helpers';
 import { useMarkerStore } from '../store/useMarkerStore';
-import countriesDataUrl from '../assets/data/countries-110m.geojson?url';
+import countriesDataUrl from '../assets/data/countries-50m.geojson?url';
 
 interface CountryFeature {
   type: 'Feature';

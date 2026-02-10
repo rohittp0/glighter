@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import { useAnimationStore } from '../../store/useAnimationStore';
-import countriesDataUrl from '../../assets/data/countries-110m.geojson?url';
+import countriesDataUrl from '../../assets/data/countries-50m.geojson?url';
 
 interface CountryLayerProps {
   map: MapLibreMap | null;
