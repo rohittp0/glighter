@@ -20,7 +20,8 @@ export function MapContainer({ onMapLoad, onClick }: MapContainerProps) {
       style: getMapStyleUrl(),
       center: [0, 20],
       zoom: 2,
-    });
+      preserveDrawingBuffer: true,
+    } as maplibregl.MapOptions);
 
     map.on('load', () => {
       onMapLoad?.(map);

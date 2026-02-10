@@ -41,15 +41,19 @@ export function AnimationPreviewScreen({ onBack }: AnimationPreviewScreenProps) 
   const handleExport = async () => {
     if (!map) return;
 
-    // Calculate total duration
+    // Generate animation config
     const config = generateAnimationConfig(markers);
+
+    // Calculate total duration
     const totalDuration = config.waypoints.reduce((sum, w) => sum + w.duration, 0)
       + (markers.length * 1500); // Pause time
 
-    // Start animation and recording
+    // Start animation on visible map for user feedback
     setPlaying(true);
+
     try {
-      await exportVideo(map, totalDuration);
+      // Export with animation config (creates hidden map for recording)
+      await exportVideo(map, config, totalDuration);
       toast.success('Video exported successfully!');
     } catch (error) {
       toast.error('Failed to export video');
