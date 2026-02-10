@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import type { Map as MapLibreMap } from 'maplibre-gl';
-import type { VideoExportOptions } from '../types/video.types';
-import type { AnimationConfig } from '../types/animation.types';
-import { exportMapVideo } from '../services/videoExport';
+import {useState} from 'react';
+import type {Map as MapLibreMap} from 'maplibre-gl';
+import type {VideoExportOptions} from '../types/video.types';
+import type {AnimationConfig} from '../types/animation.types';
+import {exportMapVideo} from '../services/videoExport';
 
 export function useVideoExport() {
   const [isExporting, setIsExporting] = useState(false);
@@ -14,29 +14,20 @@ export function useVideoExport() {
     animationConfig: AnimationConfig,
     durationMs: number,
     options?: Partial<VideoExportOptions>
-  ) => {
+  ): Promise<{ blob: Blob; extension: string }> => {
     setIsExporting(true);
     setProgress(0);
     setError(null);
 
     try {
-      const { blob, extension } = await exportMapVideo(
-        map,
-        animationConfig,
-        durationMs,
-        setProgress,
-        options
+        // Don't auto-download - just return the result
+      return await exportMapVideo(
+          map,
+          animationConfig,
+          durationMs,
+          setProgress,
+          options
       );
-
-      // Download video with correct extension
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `glighter-${Date.now()}.${extension}`;
-      a.click();
-      URL.revokeObjectURL(url);
-
-      return blob;
     } catch (err) {
       setError('Failed to export video');
       throw err;

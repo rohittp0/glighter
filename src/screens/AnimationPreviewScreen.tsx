@@ -14,9 +14,10 @@ import { generateAnimationConfig } from '../utils/animationHelpers';
 
 interface AnimationPreviewScreenProps {
   onBack: () => void;
+  onExportComplete: (blob: Blob, extension: string) => void;
 }
 
-export function AnimationPreviewScreen({ onBack }: AnimationPreviewScreenProps) {
+export function AnimationPreviewScreen({ onBack, onExportComplete }: AnimationPreviewScreenProps) {
   const [map, setMap] = useState<MapLibreMap | null>(null);
   const markers = useMarkerStore(state => state.markers);
   const { isPlaying, setPlaying, setConfig, reset } = useAnimationStore();
@@ -26,7 +27,7 @@ export function AnimationPreviewScreen({ onBack }: AnimationPreviewScreenProps) 
     // Generate animation config when screen loads
     const config = generateAnimationConfig(markers);
     setConfig(config);
-  }, [markers]);
+  }, [markers, setConfig]);
 
   const handlePlay = () => {
     reset();
@@ -52,9 +53,11 @@ export function AnimationPreviewScreen({ onBack }: AnimationPreviewScreenProps) 
     setPlaying(true);
 
     try {
-      // Export with animation config (creates hidden map for recording)
-      await exportVideo(map, config, totalDuration);
-      toast.success('Video exported successfully!');
+      // Capture the result instead of ignoring it
+      const { blob, extension } = await exportVideo(map, config, totalDuration);
+
+      // Navigate to preview screen with video data
+      onExportComplete(blob, extension);
     } catch (error) {
       toast.error('Failed to export video');
       console.error('Export error:', error);
